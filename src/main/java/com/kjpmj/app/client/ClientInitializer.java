@@ -1,13 +1,14 @@
-package com.kjpmj.app;
+package com.kjpmj.app.client;
+
+import com.kjpmj.app.client.handler.ClientInboundHandler;
+import com.kjpmj.app.client.handler.ClientOutboundHandler;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
-import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 
-@Sharable
 public class ClientInitializer extends ChannelInitializer<Channel>{
 	@Override
 	protected void initChannel(Channel ch) throws Exception {
@@ -15,8 +16,7 @@ public class ClientInitializer extends ChannelInitializer<Channel>{
 		
 		pipeline.addLast(new HttpClientCodec());
 		pipeline.addLast("aggregator", new HttpObjectAggregator(512 * 1024));
-//		pipeline.addLast(new ClientOutboundHandler());
 		pipeline.addLast(new ClientInboundHandler());
-		
+//		pipeline.addLast(new ClientOutboundHandler());
 	}
 }
