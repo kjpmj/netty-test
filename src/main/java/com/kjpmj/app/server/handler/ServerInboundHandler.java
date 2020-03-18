@@ -10,7 +10,6 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.util.CharsetUtil;
 import io.netty.util.ReferenceCountUtil;
 
-@Sharable
 public class ServerInboundHandler extends ChannelInboundHandlerAdapter{
 	
 	@Override
@@ -27,13 +26,18 @@ public class ServerInboundHandler extends ChannelInboundHandlerAdapter{
 			req = (HttpRequest) msg;
 		}
 		
-		System.out.println("ServerInboundHandler > URI: " + req.uri());
+//		System.out.println("ServerInboundHandler > URI: " + req.uri());
 //		ReferenceCountUtil.release(msg);
-//		ClientBootstrapper clientBootstrapper = new ClientBootstrapper(ctx);
-//		clientBootstrapper.init();
+		ClientBootstrapper clientBootstrapper = new ClientBootstrapper(ctx);
+		clientBootstrapper.init();
 		
-		ctx.write(Unpooled.copiedBuffer("hi netty", CharsetUtil.UTF_8));
-		ctx.fireChannelRead(Unpooled.copiedBuffer("hi netty", CharsetUtil.UTF_8));
-//		ctx.close();
+//		ctx.write(Unpooled.copiedBuffer("hi netty", CharsetUtil.UTF_8));
 	}
+	
+	@Override
+	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+		cause.printStackTrace();
+		ctx.close();
+	}
+
 }

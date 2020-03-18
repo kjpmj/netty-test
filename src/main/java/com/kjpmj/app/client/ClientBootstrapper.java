@@ -9,17 +9,17 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
 public class ClientBootstrapper {
-	private ChannelHandlerContext ctx;
+	private ChannelHandlerContext channelHandlerContext;
 	
-	public ClientBootstrapper(ChannelHandlerContext ctx) {
-		this.ctx = ctx;
+	public ClientBootstrapper(ChannelHandlerContext channelHandlerContext) {
+		this.channelHandlerContext = channelHandlerContext;
 	}
 
 	public void init() {
 		Bootstrap bootstrap = new Bootstrap();
 		bootstrap.channel(NioSocketChannel.class)
-			.group(ctx.channel().eventLoop())
-			.handler(new ClientInitializer());
+			.group(channelHandlerContext.channel().eventLoop())
+			.handler(new ClientInitializer(channelHandlerContext));
 		
 		ChannelFuture future = bootstrap.connect(new InetSocketAddress("localhost", 8080));
 		future.addListener(new ChannelFutureListener() {
@@ -29,7 +29,7 @@ public class ClientBootstrapper {
 				System.out.println("Client future isSuccess: " + channelFuture.isSuccess());
 				
 				if(!channelFuture.isSuccess()) {
-					ctx.close();
+					channelHandlerContext.close();
 				}
 			}
 		});

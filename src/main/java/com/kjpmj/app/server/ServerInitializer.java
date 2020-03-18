@@ -1,7 +1,6 @@
 package com.kjpmj.app.server;
 
 import com.kjpmj.app.server.handler.ServerInboundHandler;
-import com.kjpmj.app.server.handler.ServerInboundHandler2;
 import com.kjpmj.app.server.handler.ServerOutboundHandler;
 
 import io.netty.channel.Channel;
@@ -20,7 +19,5 @@ public class ServerInitializer extends ChannelInitializer<Channel>{
 		pipeline.addLast("aggregator", new HttpObjectAggregator(512 * 1024));
 		pipeline.addLast("serverOutboundHandler", new ServerOutboundHandler());
 		pipeline.addLast("serverInboundHandler", new ServerInboundHandler());
-		pipeline.addLast("serverInboundHandler2", new ServerInboundHandler2());
-//		pipeline.addLast("serverInboundHandler2", new ServerInboundHandler2());
 	}
 }
