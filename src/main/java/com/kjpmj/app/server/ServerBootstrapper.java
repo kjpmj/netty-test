@@ -3,7 +3,6 @@ package com.kjpmj.app.server;
 import java.net.InetSocketAddress;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.EventLoopGroup;

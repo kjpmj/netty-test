@@ -1,5 +1,7 @@
 package com.kjpmj.app.client.handler;
 
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.FullHttpResponse;
@@ -26,6 +28,7 @@ public class ClientInboundHandler extends ChannelInboundHandlerAdapter{
 		System.out.println(response.content().toString(CharsetUtil.UTF_8));
 		
 		channelHandlerContext.write(response.retain());
+		ctx.close();
 	}
 	
 	@Override

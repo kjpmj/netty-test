@@ -24,10 +24,9 @@ public class ServerOutboundHandler extends ChannelOutboundHandlerAdapter{
 		
 		ChannelFuture future = ctx.writeAndFlush(response);
 		future.addListener(new ChannelFutureListener() {
-			
 			@Override
 			public void operationComplete(ChannelFuture channelFuture) throws Exception {
-				System.out.println(channelFuture.isSuccess());
+				System.out.println("ServerOutboundHandler > isSuccess: " + channelFuture.isSuccess());
 				channelFuture.channel().close();
 			}
 		});

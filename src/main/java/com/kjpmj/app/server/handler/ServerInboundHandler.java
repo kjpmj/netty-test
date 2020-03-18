@@ -2,12 +2,9 @@ package com.kjpmj.app.server.handler;
 
 import com.kjpmj.app.client.ClientBootstrapper;
 
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.util.CharsetUtil;
 import io.netty.util.ReferenceCountUtil;
 
 public class ServerInboundHandler extends ChannelInboundHandlerAdapter{
@@ -26,12 +23,9 @@ public class ServerInboundHandler extends ChannelInboundHandlerAdapter{
 			req = (HttpRequest) msg;
 		}
 		
-//		System.out.println("ServerInboundHandler > URI: " + req.uri());
-//		ReferenceCountUtil.release(msg);
+		ReferenceCountUtil.release(msg);
 		ClientBootstrapper clientBootstrapper = new ClientBootstrapper(ctx);
 		clientBootstrapper.init();
-		
-//		ctx.write(Unpooled.copiedBuffer("hi netty", CharsetUtil.UTF_8));
 	}
 	
 	@Override
