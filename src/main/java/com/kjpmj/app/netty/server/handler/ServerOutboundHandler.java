@@ -19,15 +19,14 @@ public class ServerOutboundHandler extends ChannelOutboundHandlerAdapter{
 		if(msg instanceof FullHttpResponse) {
 			response = (FullHttpResponse) msg; 
 		}
-		
-		ReferenceCountUtil.release(msg);
-		
+
 		ChannelFuture future = ctx.writeAndFlush(response);
 		future.addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(ChannelFuture channelFuture) throws Exception {
 				System.out.println("ServerOutboundHandler > isSuccess: " + channelFuture.isSuccess());
 				channelFuture.channel().close();
+				ReferenceCountUtil.release(msg);
 			}
 		});
 

@@ -2,7 +2,7 @@ package com.kjpmj.app.netty.client;
 
 import java.net.InetSocketAddress;
 
-import com.kjpmj.app.netty.model.ClientToProxyRequestVO;
+import com.kjpmj.app.netty.model.ProxyRequestVO;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
@@ -12,22 +12,20 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 
 public class ClientBootstrapper {
 	private ChannelHandlerContext channelHandlerContext;
-	private ClientToProxyRequestVO clientToProxyRequestVO;
+	private ProxyRequestVO proxyRequestVO;
 	
-	public ClientBootstrapper(ChannelHandlerContext channelHandlerContext, ClientToProxyRequestVO clientToProxyRequestVO) {
+	public ClientBootstrapper(ChannelHandlerContext channelHandlerContext, ProxyRequestVO proxyRequestVO) {
 		this.channelHandlerContext = channelHandlerContext;
-		this.clientToProxyRequestVO = clientToProxyRequestVO;
+		this.proxyRequestVO = proxyRequestVO;
 	}
 
 	public void init() {
 		Bootstrap bootstrap = new Bootstrap();
 		bootstrap.channel(NioSocketChannel.class)
 			.group(channelHandlerContext.channel().eventLoop())
-			.handler(new ClientInitializer(channelHandlerContext, clientToProxyRequestVO));
+			.handler(new ClientInitializer(channelHandlerContext, proxyRequestVO));
 		
-		// 아 이상하다
-		
-		ChannelFuture future = bootstrap.connect(new InetSocketAddress("localhost", 8080));
+		ChannelFuture future = bootstrap.connect(new InetSocketAddress(proxyRequestVO.getExternalRequestHost(), proxyRequestVO.getExternalRequestPort()));
 		future.addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(ChannelFuture channelFuture) throws Exception {

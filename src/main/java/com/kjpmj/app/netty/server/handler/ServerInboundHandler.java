@@ -1,63 +1,87 @@
 package com.kjpmj.app.netty.server.handler;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import java.io.EOFException;
+import java.io.IOException;
 
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.exc.UnrecognizedPropertyException;
+
+import com.kjpmj.app.business.UriController;
 import com.kjpmj.app.netty.client.ClientBootstrapper;
-import com.kjpmj.app.netty.model.ClientToProxyRequestVO;
+import com.kjpmj.app.netty.constant.NettyConstant;
+import com.kjpmj.app.netty.exception.NettyException;
+import com.kjpmj.app.netty.model.ProxyRequestVO;
+import com.kjpmj.app.netty.util.NettyUtil;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.util.ReferenceCountUtil;
 
-public class ServerInboundHandler extends ChannelInboundHandlerAdapter{
+public class ServerInboundHandler extends SimpleChannelInboundHandler<FullHttpRequest>{
 	
 	@Override
-	public void channelActive(ChannelHandlerContext ctx) throws Exception {
+	public void channelActive(ChannelHandlerContext ctx) {
 		System.out.println("ServerInboundHandler > channelActive");
 	}
 	
 	@Override
-	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+	protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg) throws Exception {
 		System.out.println("ServerInboundHandler > channelRead");
 		
-		HttpRequest req = null;
-		HttpContent reqContent = null;
-		
-		if(msg instanceof HttpRequest) {
-			req = (HttpRequest) msg;
+		HttpRequest req = msg;
+		HttpContent reqContent = msg;
+		ProxyRequestVO vo = null;
+
+		try {
+			// POST method만 허용
+			if(!NettyUtil.verifyHttpMethod(req.method())) {
+				throw new NettyException(NettyConstant.BUSINESS_ERROR_003);
+			}
+			
+			// TODO: uri가 api로 시작하는지 체크
+			
+			// ProxyRequestVO 생성
+			vo = NettyUtil.createProxyRequestVO(reqContent);
+			
+			// URI, Method 설정
+			vo.setRequestUri(req.uri());
+			vo.setHttpMehtod(req.method().name());
+			
+			// TODO: 아래를 하기전에 logger 부터 보자
+			// TODO: 이 부분에서 ClientToProxyRequestVO에 있는 URI로 분기 로직을 태우고 ExternalHost, ExternalPort, ExternalPath 설정
+			// TODO: 이 부분을 Annotation을 활용할 수 있도록 고민해본다.
+			UriController.uriExternalInfoMapping(vo);
+			
+			// TODO: 위에 것들을 하고 URI에 따른 실제 로직을 추가해야 한다. (AllatUtil.approval() ,또는 approvalCancel())
+			
+			ClientBootstrapper clientBootstrapper = new ClientBootstrapper(ctx, vo);
+			clientBootstrapper.init();
+			
+		} catch (NettyException e) {
+			e.printStackTrace();
+			FullHttpResponse response = NettyUtil.createFullHttpResponse(e.getMessage());
+			ctx.write(response.retain()).addListener(ChannelFutureListener.CLOSE);
+		} catch (EOFException e) {
+			e.printStackTrace();
+			FullHttpResponse response = NettyUtil.createFullHttpResponse(NettyConstant.BUSINESS_ERROR_001);
+			ctx.write(response.retain()).addListener(ChannelFutureListener.CLOSE);
+		} catch (UnrecognizedPropertyException e) {
+			e.printStackTrace();
+			FullHttpResponse response = NettyUtil.createFullHttpResponse(NettyConstant.BUSINESS_ERROR_002, "허용되지 않은 파라미터 : " + e.getUnrecognizedPropertyName());
+			ctx.write(response.retain()).addListener(ChannelFutureListener.CLOSE);
+		} catch (JsonParseException e) {
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-		
-		if(msg instanceof HttpContent) {
-			reqContent = (HttpContent) msg;
-		}
-		
-		ByteBuf buf = reqContent.content();
-		byte[] bytes = ByteBufUtil.getBytes(buf);
-		
-		ObjectMapper objectMapper = new ObjectMapper();
-		ClientToProxyRequestVO vo = objectMapper.readValue(bytes, ClientToProxyRequestVO.class);
-		
-		// TODO: 이 부분에서 HttpRequest가 유효한지 검증하자 (METHOD는 반드시 POST로만 호출)
-		
-		// TODO: 이 부분에서 ClientToProxyRequestVO에 URI랑 HOST랑 METHOD를 담자
-		
-		// TODO: 이 부분에서 ClientToProxyRequestVO에 있는 URI로 분기 로직을 태우자
-		// 그그그그그 일단 ClientToProxyRequestVO라는 이름을 바꾸고 Proxy에서 External Server로 요청할 때 필요한 것도 만들자
-		
-//		System.out.println(vo.getClassName());
-//		System.out.println(vo.getMethod());
-//		vo.getParameters().forEach(map -> {
-//			System.out.println(map.get("key") + ": " + map.get("value"));
-//		});
-		
-		ReferenceCountUtil.release(msg);
-		ClientBootstrapper clientBootstrapper = new ClientBootstrapper(ctx, vo);
-		clientBootstrapper.init();
-	}
+	} 
 	
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {

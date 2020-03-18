@@ -1,27 +1,26 @@
 package com.kjpmj.app.netty.client.handler;
 
-import com.kjpmj.app.netty.model.ClientToProxyRequestVO;
+import com.kjpmj.app.netty.model.ProxyRequestVO;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.util.CharsetUtil;
 
 public class ClientInboundHandler extends ChannelInboundHandlerAdapter {
 	private ChannelHandlerContext channelHandlerContext;
-	private ClientToProxyRequestVO clientToProxyRequestVO;
+	private ProxyRequestVO proxyRequestVO;
 
-	public ClientInboundHandler(ChannelHandlerContext channelHandlerContext, ClientToProxyRequestVO clientToProxyRequestVO) {
+	public ClientInboundHandler(ChannelHandlerContext channelHandlerContext, ProxyRequestVO proxyRequestVO) {
 		this.channelHandlerContext = channelHandlerContext;
-		this.clientToProxyRequestVO = clientToProxyRequestVO;
+		this.proxyRequestVO = proxyRequestVO;
 	}
 
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		System.out.println("ClientInboundHandler > channelActive");
-		ctx.write(clientToProxyRequestVO);
+		ctx.write(proxyRequestVO);
 	}
 
 	@Override
@@ -29,7 +28,6 @@ public class ClientInboundHandler extends ChannelInboundHandlerAdapter {
 		System.out.println("ClientInboundHandler > channelRead");
 
 		FullHttpResponse response = (FullHttpResponse) msg;
-//		System.out.println(response.content().toString(CharsetUtil.UTF_8));
 
 		channelHandlerContext.write(response.retain());
 		ChannelFuture future = ctx.close();
