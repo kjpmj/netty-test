@@ -1,4 +1,4 @@
-package com.kjpmj.app.server.handler;
+package com.kjpmj.app.netty.server.handler;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;

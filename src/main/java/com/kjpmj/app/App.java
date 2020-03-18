@@ -1,6 +1,6 @@
 package com.kjpmj.app;
 
-import com.kjpmj.app.server.ServerBootstrapper;
+import com.kjpmj.app.netty.server.ServerBootstrapper;
 
 /**
  * Hello world!

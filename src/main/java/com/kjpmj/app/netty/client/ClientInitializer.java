@@ -1,7 +1,8 @@
-package com.kjpmj.app.client;
+package com.kjpmj.app.netty.client;
 
-import com.kjpmj.app.client.handler.ClientInboundHandler;
-import com.kjpmj.app.client.handler.ClientOutboundHandler;
+import com.kjpmj.app.netty.client.handler.ClientInboundHandler;
+import com.kjpmj.app.netty.client.handler.ClientOutboundHandler;
+import com.kjpmj.app.netty.model.ClientToProxyRequestVO;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -12,9 +13,11 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 
 public class ClientInitializer extends ChannelInitializer<Channel>{
 	private ChannelHandlerContext channelHandlerContext;
+	private ClientToProxyRequestVO clientToProxyRequestVO;
 	
-	public ClientInitializer(ChannelHandlerContext channelHandlerContext) {
+	public ClientInitializer(ChannelHandlerContext channelHandlerContext, ClientToProxyRequestVO clientToProxyRequestVO) {
 		this.channelHandlerContext = channelHandlerContext;
+		this.clientToProxyRequestVO = clientToProxyRequestVO;
 	}
 
 	@Override
@@ -24,6 +27,6 @@ public class ClientInitializer extends ChannelInitializer<Channel>{
 		pipeline.addLast("httpClientCodec", new HttpClientCodec());
 		pipeline.addLast("httpObjectAggregator", new HttpObjectAggregator(512 * 1024));
 		pipeline.addLast("clientOutboundHandler", new ClientOutboundHandler());
-		pipeline.addLast("clientInboundHandler", new ClientInboundHandler(channelHandlerContext));
+		pipeline.addLast("clientInboundHandler", new ClientInboundHandler(channelHandlerContext, clientToProxyRequestVO));
 	}
 }

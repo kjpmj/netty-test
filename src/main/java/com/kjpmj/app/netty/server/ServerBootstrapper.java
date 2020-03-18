@@ -1,4 +1,4 @@
-package com.kjpmj.app.server;
+package com.kjpmj.app.netty.server;
 
 import java.net.InetSocketAddress;
 

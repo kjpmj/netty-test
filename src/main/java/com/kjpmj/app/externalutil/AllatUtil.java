@@ -12,7 +12,7 @@ TEL       : 02-3783-9990
 EMAIL     : allatpay@allat.co.kr
 Homepage  : www.allatpay.com
 ******** Copyright Allat Corp. All Right Reserved  *******/
-package com.kjpmj.app;
+package com.kjpmj.app.externalutil;
 
 import java.io.BufferedReader;
 import java.io.IOException;

@@ -1,4 +1,6 @@
-package com.kjpmj.app.client.handler;
+package com.kjpmj.app.netty.client.handler;
+
+import com.kjpmj.app.netty.model.ClientToProxyRequestVO;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -17,6 +19,15 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter{
 	@Override
 	public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
 		System.out.println("ClientOutboundHandler > write");
+		ClientToProxyRequestVO clientToProxyRequestVO = null;
+		
+		if(msg instanceof ClientToProxyRequestVO) {
+			clientToProxyRequestVO = (ClientToProxyRequestVO) msg;
+		}
+		
+		clientToProxyRequestVO.getParameters().forEach(map -> {
+			System.out.println(map.get("key") + ": " + map.get("value"));
+		});		
 		
 		HttpRequest request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/journal");
 		

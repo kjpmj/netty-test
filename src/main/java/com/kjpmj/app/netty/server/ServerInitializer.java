@@ -1,7 +1,7 @@
-package com.kjpmj.app.server;
+package com.kjpmj.app.netty.server;
 
-import com.kjpmj.app.server.handler.ServerInboundHandler;
-import com.kjpmj.app.server.handler.ServerOutboundHandler;
+import com.kjpmj.app.netty.server.handler.ServerInboundHandler;
+import com.kjpmj.app.netty.server.handler.ServerOutboundHandler;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
