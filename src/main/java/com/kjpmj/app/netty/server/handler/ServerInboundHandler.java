@@ -43,7 +43,14 @@ public class ServerInboundHandler extends SimpleChannelInboundHandler<FullHttpRe
 				throw new NettyException(NettyConstant.BUSINESS_ERROR_003);
 			}
 			
-			// TODO: uri가 api로 시작하는지 체크
+			// TODO: uri가 sockp로 시작하는지 체크
+			// true? 
+			//	1. ProxyRequestVO 생성
+			//	2. URI, Method명 설정
+			//	3. URI로 분기 로직을 태우고 ExternalHost, ExternalPort, ExternalPath 설정
+			// 
+			// false?
+			//	1.받은 데이터 그대로 
 			
 			// ProxyRequestVO 생성
 			vo = NettyUtil.createProxyRequestVO(reqContent);

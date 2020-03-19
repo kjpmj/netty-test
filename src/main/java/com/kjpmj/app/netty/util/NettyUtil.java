@@ -1,6 +1,8 @@
 package com.kjpmj.app.netty.util;
 
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.DeserializationConfig.Feature;
+import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 
 import com.kjpmj.app.netty.model.ProxyRequestVO;
 
@@ -27,6 +29,12 @@ public class NettyUtil {
 	public static ProxyRequestVO createProxyRequestVO(HttpContent httpContent) throws Exception{
 		ProxyRequestVO proxyRequestVO = null;
 		ObjectMapper objectMapper = new ObjectMapper();
+		
+		// vo에 등록되어있지 않은 항목 체크
+		objectMapper.configure(Feature.FAIL_ON_UNKNOWN_PROPERTIES, true);
+		// null 혹은 비어있는 항목은 변환하지 않는다.
+		objectMapper.setSerializationInclusion(Inclusion.NON_NULL);
+		
 		ByteBuf buf = httpContent.content();
 		byte[] bytes = ByteBufUtil.getBytes(buf);
 

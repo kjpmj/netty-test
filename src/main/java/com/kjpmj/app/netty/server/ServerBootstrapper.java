@@ -26,7 +26,7 @@ public class ServerBootstrapper {
 			ServerBootstrap serverBootstrap = new ServerBootstrap();
 			serverBootstrap.group(bossGroup, workerGroup)
 				.channel(NioServerSocketChannel.class)
-				.handler(new LoggingHandler(LogLevel.INFO))
+//				.handler(new LoggingHandler(LogLevel.INFO))
 				.childHandler(new ServerInitializer());
 			
 			ChannelFuture future = serverBootstrap.bind(new InetSocketAddress(port));
