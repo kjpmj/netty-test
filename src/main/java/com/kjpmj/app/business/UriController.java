@@ -7,7 +7,7 @@ import com.kjpmj.app.netty.model.ProxyRequestVO;
 public class UriController {
 	public static void uriExternalInfoMapping(ProxyRequestVO vo) {
 		if("/api/test".equals(vo.getRequestUri())) {
-			vo.setExternalRequestHost("210.108.217.17");
+			vo.setExternalRequestHost("localhost");
 			vo.setExternalRequestPort(8080);
 			vo.setExternalRequestPath("/journal");
 			

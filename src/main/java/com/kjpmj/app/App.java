@@ -1,6 +1,10 @@
 package com.kjpmj.app;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.kjpmj.app.netty.server.ServerBootstrapper;
+import com.kjpmj.app.netty.util.ConfigManager;
 
 /**
  * Hello world!
@@ -8,10 +12,17 @@ import com.kjpmj.app.netty.server.ServerBootstrapper;
  */
 public class App {
 	public static void main(String[] args) {
-		int port = Integer.parseInt(args[0]);
-		System.out.println("Port : " + port);
+		Logger logger = LoggerFactory.getLogger(App.class);
 		
-		ServerBootstrapper serverBootstrapper = new ServerBootstrapper(port);
+		if(args.length < 1) {
+			logger.error("Config File Name Not found");
+			System.exit(0);
+		}
+		
+		ConfigManager configManager = ConfigManager.getInstance();
+		configManager.load(ConfigManager.CONFIG_X, args[0]);
+		
+		ServerBootstrapper serverBootstrapper = new ServerBootstrapper();
 		serverBootstrapper.init();
 	}
 }

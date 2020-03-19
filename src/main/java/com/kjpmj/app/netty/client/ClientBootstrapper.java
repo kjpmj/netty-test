@@ -2,6 +2,9 @@ package com.kjpmj.app.netty.client;
 
 import java.net.InetSocketAddress;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.kjpmj.app.netty.model.ProxyRequestVO;
 
 import io.netty.bootstrap.Bootstrap;
@@ -11,6 +14,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
 public class ClientBootstrapper {
+	Logger logger = LoggerFactory.getLogger(ClientBootstrapper.class);
+	
 	private ChannelHandlerContext channelHandlerContext;
 	private ProxyRequestVO proxyRequestVO;
 	
@@ -29,8 +34,8 @@ public class ClientBootstrapper {
 		future.addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(ChannelFuture channelFuture) throws Exception {
-				System.out.println("Client future isDone: " + channelFuture.isDone());
-				System.out.println("Client future isSuccess: " + channelFuture.isSuccess());
+				logger.info("Client future isDone: " + channelFuture.isDone());
+				logger.info("Client future isSuccess: " + channelFuture.isSuccess());
 				
 				if(!channelFuture.isSuccess()) {
 					channelHandlerContext.close();

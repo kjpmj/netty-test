@@ -6,6 +6,8 @@ import java.io.IOException;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.exc.UnrecognizedPropertyException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.kjpmj.app.business.UriController;
 import com.kjpmj.app.netty.client.ClientBootstrapper;
@@ -23,15 +25,16 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
 
 public class ServerInboundHandler extends SimpleChannelInboundHandler<FullHttpRequest>{
+	Logger logger = LoggerFactory.getLogger(ServerInboundHandler.class);
 	
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) {
-		System.out.println("ServerInboundHandler > channelActive");
+		logger.info("ServerInboundHandler > channelActive");
 	}
 	
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg) throws Exception {
-		System.out.println("ServerInboundHandler > channelRead");
+		logger.info("ServerInboundHandler > channelRead");
 		
 		HttpRequest req = msg;
 		HttpContent reqContent = msg;

@@ -1,5 +1,8 @@
 package com.kjpmj.app.netty.client.handler;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.kjpmj.app.netty.model.ProxyRequestVO;
 
 import io.netty.channel.ChannelFuture;
@@ -15,10 +18,11 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpVersion;
 
 public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter{
-
+	Logger logger = LoggerFactory.getLogger(ClientOutboundHandler.class);
+	
 	@Override
 	public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-		System.out.println("ClientOutboundHandler > write");
+		logger.info("ClientOutboundHandler > write");
 		ProxyRequestVO clientToProxyRequestVO = null;
 		
 		if(msg instanceof ProxyRequestVO) {
@@ -26,7 +30,7 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter{
 		}
 		
 //		clientToProxyRequestVO.getParameters().forEach(map -> {
-//			System.out.println(map.get("key") + ": " + map.get("value"));
+//			logger.info(map.get("key") + ": " + map.get("value"));
 //		});		
 		
 		HttpRequest request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, clientToProxyRequestVO.getExternalRequestPath());
@@ -40,7 +44,7 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter{
         future.addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(ChannelFuture channelFuture) throws Exception {
-				System.out.println("ClientOutboundHandler > isSuccess: " + channelFuture.isSuccess());
+				logger.info("ClientOutboundHandler > isSuccess: " + channelFuture.isSuccess());
 			}
 		});
 	}

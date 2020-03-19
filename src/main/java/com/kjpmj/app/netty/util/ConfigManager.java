@@ -2,56 +2,40 @@ package com.kjpmj.app.netty.util;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.InvalidPropertiesFormatException;
 import java.util.Iterator;
 import java.util.Properties;
-import java.util.Set;
 
-import org.apache.ibatis.io.Resources;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-/**
- * <pre>
- * 설정처리 유틸 클래스
- * </pre>
- * 
- * @author jhkim
- * @since 2016. 11. 9.
- */
 public class ConfigManager {
-
+	private Logger logger = LoggerFactory.getLogger(ConfigManager.class);
+	
 	public static final String CONFIG_P = "properties";
 	public static final String CONFIG_X = "xml";
 	public static final String CONFIG_D = "db";
-
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
-
 	
-
-	private static ConfigManager configManager = null;
-
-	private static HashMap<String, String> configMap = new HashMap<String, String>();
-
-	public void setValue(String key, String value) {
+	private ConfigManager(){}
+	
+	private HashMap<String, String> configMap = new HashMap<String, String>();
+	
+	private static class LazyHolodr {
+		public static final ConfigManager INSTANCE = new ConfigManager();
+	}
+	
+	public static ConfigManager getInstance() {
+		return LazyHolodr.INSTANCE;
+	}
+	
+	private void setValue(String key, String value) {
 		configMap.put(key, value);
 	}
-
 	public String getValue(String key) {
 		return configMap.get(key);
 	}
-
-	public static ConfigManager getConfigManager() {
-		if (configManager == null) {
-			configManager = new ConfigManager();
-		}
-
-		return configManager;
-	}
-
+	
 	/**
 	 * <pre>
 	 * 설정 파일 로드 및 타입 별 파싱 메소드 호출
@@ -62,18 +46,17 @@ public class ConfigManager {
 	 * @param path
 	 *            설정파일경로
 	 */
-	public void load(String type, String path) throws Exception {
+	public void load(String type, String path) {
 
-		logger.debug("type:" + type + " " + "path:" + path);
+		logger.debug("TYPE:" + type + " " + "PATH:" + path);
 
-		if (type.equals(CONFIG_P)) {
+		if (CONFIG_P.equals(type)) {
 			loadProperties(path);
-		} else if (type.equals(CONFIG_X)) {
+		} else if (CONFIG_X.equals(type)) {
 			loadXML(path);
 		}
-
 	}
-
+	
 	/**
 	 * <pre>
 	 * PROPERTIES 처리 메소드
@@ -82,24 +65,41 @@ public class ConfigManager {
 	 * @param path
 	 *            설정파일경로
 	 */
-	public void loadProperties(String path) throws Exception {
-		Properties prop = new Properties();
-		prop.load(Resources.getResourceAsStream(path));
+	public void loadProperties(String path) {
+		Properties properties = new Properties();
+		ClassLoader classLoader = getClass().getClassLoader();
+		InputStream fis = null;
 
-		Set set;
-		String key;
+		try {
+			fis = classLoader.getResourceAsStream(path);
+			properties.load(fis);
+			Iterator<Object> iter = properties.keySet().iterator();
+			while(iter.hasNext()) {
+				String key = (String)iter.next();
+				String value = properties.getProperty(key);
+				
+				setValue(key, value);
+				logger.info("KEY:" + key + " " + "VALUE:" + value);
+			}
 
-		set = prop.keySet();
-		Iterator itr = set.iterator();
-		while (itr.hasNext()) {
-			key = (String) itr.next();
-			setValue(key, prop.getProperty(key));
-			logger.debug("Key[" + key + "]" + " " + "value[" + prop.getProperty(key) + "]");
+		} catch (InvalidPropertiesFormatException e) {
+			logger.error("ConfigManager loadProperties 실패. InvalidPropertiesFormat 예외");
+			logger.error("",e);
+		} catch (IOException e) {
+			logger.error("ConfigManager loadProperties 실패. IOException");
+			logger.error("",e);
+		} finally {
+			try {
+				if(fis != null) {
+					fis.close();
+				}
+			} catch (IOException e) {
+				logger.error("InputStream Close 실패. IOException");
+				e.printStackTrace();
+			}
 		}
 	}
-
 	
-
 	/**
 	 * <pre>
 	 * XML 설정처리 메소드
@@ -109,32 +109,23 @@ public class ConfigManager {
 	 *            설정파일경로
 	 */
 	public void loadXML(String path) {
-		Properties properties = new Properties();
-
 		logger.info("======================Load Configuration from XML======================");
+		
+		Properties properties = new Properties();
+		ClassLoader classLoader = getClass().getClassLoader();
+		InputStream fis = null;
+		
 		try {
-
-			/*String absolutePath = this.getClass().getResource("").getPath();
-			System.out.println("absolutePath:" + absolutePath);*/
-
-			InputStream fis = this.getClass().getResourceAsStream(path);
-
+			fis = classLoader.getResourceAsStream(path);
 			properties.loadFromXML(fis);
-			// properties.
-
-			properties.keySet().iterator();
-
-			Enumeration<?> proNms = properties.propertyNames();
-			while (proNms.hasMoreElements()) {
-				String proKey = (String) proNms.nextElement();
-				String proValue = properties.getProperty(proKey);
-
-				setValue(proKey, proValue);
-
-				logger.info("KEY:" + proKey + " " + "VALUE:" + proValue);
+			Iterator<Object> iter = properties.keySet().iterator();
+			while(iter.hasNext()) {
+				String key = (String)iter.next();
+				String value = properties.getProperty(key);
+				
+				setValue(key, value);
+				logger.info("KEY:" + key + " " + "VALUE:" + value);
 			}
-
-			logger.info("==================================================================");
 
 		} catch (InvalidPropertiesFormatException e) {
 			logger.error("ConfigManager loadXml 실패. InvalidPropertiesFormat 예외");
@@ -142,7 +133,15 @@ public class ConfigManager {
 		} catch (IOException e) {
 			logger.error("ConfigManager loadXml 실패. IOException");
 			logger.error("",e);
+		} finally {
+			try {
+				if(fis != null) {
+					fis.close();
+				}
+			} catch (IOException e) {
+				logger.error("InputStream Close 실패. IOException");
+				e.printStackTrace();
+			}
 		}
 	}
-
 }

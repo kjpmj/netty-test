@@ -1,5 +1,8 @@
 package com.kjpmj.app.netty.client.handler;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.kjpmj.app.netty.model.ProxyRequestVO;
 
 import io.netty.channel.ChannelFuture;
@@ -9,6 +12,9 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.FullHttpResponse;
 
 public class ClientInboundHandler extends ChannelInboundHandlerAdapter {
+	
+	Logger logger = LoggerFactory.getLogger(ClientInboundHandler.class);
+	
 	private ChannelHandlerContext channelHandlerContext;
 	private ProxyRequestVO proxyRequestVO;
 
@@ -19,13 +25,13 @@ public class ClientInboundHandler extends ChannelInboundHandlerAdapter {
 
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
-		System.out.println("ClientInboundHandler > channelActive");
+		logger.info("ClientInboundHandler > channelActive");
 		ctx.write(proxyRequestVO);
 	}
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-		System.out.println("ClientInboundHandler > channelRead");
+		logger.info("ClientInboundHandler > channelRead");
 
 		FullHttpResponse response = (FullHttpResponse) msg;
 
@@ -35,7 +41,7 @@ public class ClientInboundHandler extends ChannelInboundHandlerAdapter {
 		future.addListener(new ChannelFutureListener() {
 			@Override
 			public void operationComplete(ChannelFuture channelFuture) throws Exception {
-				System.out.println("ClientInboundHandler > channelRead > isSuccess : " + channelFuture.isSuccess());
+				logger.info("ClientInboundHandler > channelRead > isSuccess : " + channelFuture.isSuccess());
 
 			}
 		});
